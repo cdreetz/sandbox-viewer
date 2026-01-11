@@ -9,6 +9,8 @@ import FileViewer from '@/components/FileViewer'
 import { RunMetadata, RolloutMetadata, Command, FileNode } from '@/types'
 import styles from './page.module.css'
 
+type SidebarView = 'runs' | 'rollouts'
+
 export default function Home() {
   // State for data
   const [runs, setRuns] = useState<RunMetadata[]>([])
@@ -21,6 +23,9 @@ export default function Home() {
   const [selectedRolloutId, setSelectedRolloutId] = useState<string | null>(null)
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null)
   const [fileContent, setFileContent] = useState<string | null>(null)
+
+  // Sidebar view state
+  const [sidebarView, setSidebarView] = useState<SidebarView>('runs')
 
   // Loading states
   const [loadingRuns, setLoadingRuns] = useState(true)
@@ -146,6 +151,7 @@ export default function Home() {
 
   const handleSelectRun = useCallback((runId: string) => {
     setSelectedRunId(runId)
+    setSidebarView('rollouts')
   }, [])
 
   const handleSelectRollout = useCallback((rolloutId: string) => {
@@ -155,23 +161,38 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.sidebar}>
-        <div className={styles.runColumn}>
-          <RunList
-            runs={runs}
-            selectedRunId={selectedRunId}
-            onSelectRun={handleSelectRun}
-          />
+        <div className={styles.sidebarHeader}>
+          <button
+            className={`${styles.sidebarTab} ${sidebarView === 'runs' ? styles.active : ''}`}
+            onClick={() => setSidebarView('runs')}
+          >
+            Runs
+          </button>
+          <span className={styles.sidebarDivider}>/</span>
+          <button
+            className={`${styles.sidebarTab} ${sidebarView === 'rollouts' ? styles.active : ''}`}
+            onClick={() => setSidebarView('rollouts')}
+            disabled={!selectedRunId}
+          >
+            Rollouts
+          </button>
         </div>
-        {selectedRunId && (
-          <div className={styles.rolloutColumn}>
+        <div className={styles.sidebarContent}>
+          {sidebarView === 'runs' ? (
+            <RunList
+              runs={runs}
+              selectedRunId={selectedRunId}
+              onSelectRun={handleSelectRun}
+            />
+          ) : (
             <RolloutList
               rollouts={rollouts}
               selectedRolloutId={selectedRolloutId}
               onSelectRollout={handleSelectRollout}
               loading={loadingRollouts}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
       <div className={styles.content}>
         {selectedRolloutId ? (

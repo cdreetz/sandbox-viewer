@@ -7,17 +7,57 @@
 
 .sidebar {
   display: flex;
+  flex-direction: column;
+  width: 240px;
+  height: 100vh;
   flex-shrink: 0;
+  border-right: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
-.runColumn {
-  width: 180px;
-  height: 100vh;
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 4px;
 }
 
-.rolloutColumn {
-  width: 200px;
-  height: 100vh;
+.sidebarTab {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.sidebarTab:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.sidebarTab.active {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.sidebarTab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sidebarDivider {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.sidebarContent {
+  flex: 1;
+  overflow: hidden;
 }
 
 .content {
