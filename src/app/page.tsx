@@ -176,13 +176,29 @@ export default function Home() {
       <div className={styles.content}>
         {selectedRolloutId ? (
           <>
-            <div className={styles.filesystemSection}>
-              <FilesystemBrowser
-                filesystem={filesystem}
-                loading={loadingFilesystem}
-                onSelectFile={handleSelectFile}
-                selectedFilePath={selectedFilePath}
-              />
+            <div className={styles.topRow}>
+              <div className={styles.filesystemSection}>
+                <FilesystemBrowser
+                  filesystem={filesystem}
+                  loading={loadingFilesystem}
+                  onSelectFile={handleSelectFile}
+                  selectedFilePath={selectedFilePath}
+                />
+              </div>
+              <div className={styles.fileViewerSection}>
+                {selectedFilePath ? (
+                  <FileViewer
+                    filePath={selectedFilePath}
+                    content={fileContent}
+                    loading={loadingFile}
+                    onClose={handleCloseFile}
+                  />
+                ) : (
+                  <div className={styles.fileViewerPlaceholder}>
+                    Select a file to view
+                  </div>
+                )}
+              </div>
             </div>
             <div className={styles.commandsSection}>
               <CommandLog commands={commands} loading={loadingCommands} />
@@ -198,16 +214,6 @@ export default function Home() {
           </div>
         )}
       </div>
-      {selectedFilePath && (
-        <div className={styles.fileViewer}>
-          <FileViewer
-            filePath={selectedFilePath}
-            content={fileContent}
-            loading={loadingFile}
-            onClose={handleCloseFile}
-          />
-        </div>
-      )}
     </main>
   )
 }
