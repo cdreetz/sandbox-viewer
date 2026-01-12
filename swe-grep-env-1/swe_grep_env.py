@@ -199,7 +199,7 @@ class SweGrepEnv(vf.SandboxEnv):
         if file_pattern:
             if file_pattern.startswith(".") and not file_pattern.startswith("*"):
                 file_pattern = "*" + file_pattern
-            flags.extend(["-g", file_pattern])
+            flags.extend(["-g", shlex.quote(file_pattern)])
 
         cmd = f"rg {' '.join(flags)} {shlex.quote(pattern)} {shlex.quote(path)} 2>&1 | head -{max_lines + 1}"
         try:
