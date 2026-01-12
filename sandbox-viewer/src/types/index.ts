@@ -17,6 +17,8 @@ export interface Command {
   timestamp: string;
   turn: number | null;
   tool_call_id: string | null;
+  tool_name: string | null;
+  tool_args: Record<string, unknown> | null;
   command: string;
   stdout: string;
   stderr: string;

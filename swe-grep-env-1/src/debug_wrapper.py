@@ -74,12 +74,14 @@ class DebugSandboxClient:
             self._log(sandbox_id, command, "", "", time.perf_counter() - start, str(e))
             raise
 
-    def set_turn_context(self, sandbox_id: str, turn: int, tool_call_id: str):
+    def set_turn_context(self, sandbox_id: str, turn: int, tool_call_id: str, tool_name: str = None, tool_args: dict = None):
         """Set the current turn context for command logging."""
         state = self._sandbox_state.get(sandbox_id)
         if state:
             state["current_turn"] = turn
             state["current_tool_call_id"] = tool_call_id
+            state["current_tool_name"] = tool_name
+            state["current_tool_args"] = tool_args
 
     def _log(self, sandbox_id: str, command: str, stdout: str, stderr: str, duration: float, error: str = None):
         state = self._sandbox_state.get(sandbox_id)
@@ -91,6 +93,8 @@ class DebugSandboxClient:
             "timestamp": datetime.now().isoformat(),
             "turn": state.get("current_turn"),
             "tool_call_id": state.get("current_tool_call_id"),
+            "tool_name": state.get("current_tool_name"),
+            "tool_args": state.get("current_tool_args"),
             "command": command,
             "stdout": stdout,
             "stderr": stderr,

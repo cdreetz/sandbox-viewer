@@ -158,11 +158,10 @@ class SweGrepEnv(vf.SandboxEnv):
         if tool_name in ["grep_tool", "list_files", "read_file"]:
             sandbox_id = state["sandbox_id"]
             updated_args["sandbox_id"] = sandbox_id
-            # Set turn context for debug logging
+            # Set turn context for debug logging (include original tool_args from model)
             if isinstance(self.client, DebugSandboxClient):
                 turn = len(state["trajectory"])
-                # tool_call_id would require overriding env_response, use None for now
-                self.client.set_turn_context(sandbox_id, turn, None)
+                self.client.set_turn_context(sandbox_id, turn, None, tool_name, tool_args)
         return updated_args
 
     def _log_tool_response(self, sandbox_id: str, response: str) -> str:

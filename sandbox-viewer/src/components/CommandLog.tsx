@@ -24,10 +24,19 @@ function formatTime(timestamp: string): string {
   })
 }
 
+function formatToolArgs(toolName: string | null, toolArgs: Record<string, unknown> | null): string {
+  if (!toolName || !toolArgs) return ''
+  const args = Object.entries(toolArgs)
+    .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+    .join('\n')
+  return `${toolName}(\n${args}\n)`
+}
+
 function CommandItem({ command, index }: CommandItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const hasOutput = command.stdout || command.stderr || command.error
   const hasError = command.error || command.stderr
+  const toolArgsText = formatToolArgs(command.tool_name, command.tool_args)
 
   return (
     <div className={`${styles.commandItem} ${hasError ? styles.hasError : ''}`}>
@@ -40,7 +49,12 @@ function CommandItem({ command, index }: CommandItemProps) {
           <span className={styles.turn}>T{command.turn}</span>
         )}
         <span className={styles.time}>{formatTime(command.timestamp)}</span>
-        <span className={styles.commandText}>{command.command}</span>
+        <span className={styles.commandTextWrapper}>
+          <span className={styles.commandText}>{command.command}</span>
+          {toolArgsText && (
+            <span className={styles.tooltip}>{toolArgsText}</span>
+          )}
+        </span>
         <span className={styles.duration}>{command.duration_ms}ms</span>
         <span className={styles.expandIcon}>{isExpanded ? '−' : '+'}</span>
       </button>
