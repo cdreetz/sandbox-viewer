@@ -28,6 +28,12 @@ export default function Home() {
   // Sidebar view state
   const [sidebarView, setSidebarView] = useState<SidebarView>('runs')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   // Loading states
   const [loadingRuns, setLoadingRuns] = useState(true)
@@ -260,6 +266,15 @@ export default function Home() {
         )}
       </div>
       <div className={styles.rightSidebar}>
+        <div className={styles.themeToggle}>
+          <button
+            className={styles.themeButton}
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {darkMode ? '☀' : '☾'}
+          </button>
+        </div>
         <RolloutInfo rollout={rollouts.find(r => r.rollout_id === selectedRolloutId) || null} />
       </div>
     </main>
