@@ -22,6 +22,7 @@ export interface Command {
   stderr: string;
   duration_ms: number;
   error: string | null;
+  tool_response: string | null;
 }
 
 export interface FileNode {

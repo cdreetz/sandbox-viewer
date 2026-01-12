@@ -44,14 +44,19 @@ function CommandItem({ command, index }: CommandItemProps) {
         <span className={styles.duration}>{command.duration_ms}ms</span>
         <span className={styles.expandIcon}>{isExpanded ? '−' : '+'}</span>
       </button>
-      {isExpanded && hasOutput && (
+      {isExpanded && (
         <div className={styles.output}>
-          {command.stdout && (
+          {command.tool_response ? (
+            <div className={styles.stdout}>
+              <div className={styles.outputLabel}>response</div>
+              <pre className={styles.outputContent}>{command.tool_response}</pre>
+            </div>
+          ) : command.stdout ? (
             <div className={styles.stdout}>
               <div className={styles.outputLabel}>stdout</div>
               <pre className={styles.outputContent}>{command.stdout}</pre>
             </div>
-          )}
+          ) : null}
           {command.stderr && (
             <div className={styles.stderr}>
               <div className={styles.outputLabel}>stderr</div>
@@ -63,6 +68,9 @@ function CommandItem({ command, index }: CommandItemProps) {
               <div className={styles.outputLabel}>error</div>
               <pre className={styles.outputContent}>{command.error}</pre>
             </div>
+          )}
+          {!hasOutput && !command.tool_response && (
+            <div className={styles.noOutput}>(no output)</div>
           )}
         </div>
       )}

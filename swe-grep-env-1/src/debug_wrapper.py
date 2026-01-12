@@ -86,17 +86,38 @@ class DebugSandboxClient:
         if not state:
             return
         state["command_count"] += 1
+        # Store the log entry so we can update it with tool_response later
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "turn": state.get("current_turn"),
+            "tool_call_id": state.get("current_tool_call_id"),
+            "command": command,
+            "stdout": stdout,
+            "stderr": stderr,
+            "duration_ms": round(duration * 1000),
+            "error": error,
+            "tool_response": None
+        }
+        state["last_entry"] = entry
         with open(state["log_file"], "a") as f:
-            f.write(json.dumps({
-                "timestamp": datetime.now().isoformat(),
-                "turn": state.get("current_turn"),
-                "tool_call_id": state.get("current_tool_call_id"),
-                "command": command,
-                "stdout": stdout,
-                "stderr": stderr,
-                "duration_ms": round(duration * 1000),
-                "error": error
-            }) + "\n")
+            f.write(json.dumps(entry) + "\n")
+
+    def log_tool_response(self, sandbox_id: str, response: str):
+        """Log the tool's return value (what gets sent back to the LLM)."""
+        state = self._sandbox_state.get(sandbox_id)
+        if not state or "last_entry" not in state:
+            return
+        # Update the last log entry with the tool response
+        # We need to rewrite the file to update the last line
+        log_file = state["log_file"]
+        with open(log_file, "r") as f:
+            lines = f.readlines()
+        if lines:
+            last_entry = json.loads(lines[-1])
+            last_entry["tool_response"] = response
+            lines[-1] = json.dumps(last_entry) + "\n"
+            with open(log_file, "w") as f:
+                f.writelines(lines)
 
     async def delete(self, sandbox_id, **kwargs):
         state = self._sandbox_state.get(sandbox_id)

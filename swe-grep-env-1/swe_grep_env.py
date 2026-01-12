@@ -165,17 +165,23 @@ class SweGrepEnv(vf.SandboxEnv):
                 self.client.set_turn_context(sandbox_id, turn, None)
         return updated_args
 
+    def _log_tool_response(self, sandbox_id: str, response: str) -> str:
+        """Log the tool response and return it (for chaining)."""
+        if isinstance(self.client, DebugSandboxClient):
+            self.client.log_tool_response(sandbox_id, response)
+        return response
+
     async def grep_tool(
-        self, 
-        pattern: str, 
-        sandbox_id: str, 
-        path: str = "vscode", 
-        file_pattern: str = "", 
-        context_lines: int = 2, 
+        self,
+        pattern: str,
+        sandbox_id: str,
+        path: str = "vscode",
+        file_pattern: str = "",
+        context_lines: int = 2,
         case_insensitive: bool = False
     ) -> str:
         """Search for a pattern in files using ripgrep.
-        
+
         Args:
             pattern: Text or regex to search for inside files
             path: Directory to search in
@@ -184,7 +190,7 @@ class SweGrepEnv(vf.SandboxEnv):
             case_insensitive: Ignore case when matching
         """
         import shlex
-        
+
         max_lines = 50
         flags = ["-n", "--max-filesize", "100K"]
         if context_lines > 0:
@@ -195,55 +201,56 @@ class SweGrepEnv(vf.SandboxEnv):
             if file_pattern.startswith(".") and not file_pattern.startswith("*"):
                 file_pattern = "*" + file_pattern
             flags.extend(["-g", file_pattern])
-        
+
         cmd = f"rg {' '.join(flags)} {shlex.quote(pattern)} {shlex.quote(path)} 2>&1 | head -{max_lines + 1}"
         try:
             result = await self.client.execute_command(sandbox_id, cmd)
             output = result.stdout.strip() if result.stdout else ""
             if not output:
-                return "No matches found."
-            
+                return self._log_tool_response(sandbox_id, "No matches found.")
+
             lines = output.split('\n')
             # truncate lines that are really long
             # line minified JS files
             lines = [line[:300] + '...' if len(line) > 300 else line for line in lines]
             if len(lines) > max_lines:
                 output = '\n'.join(lines[:max_lines])
-                return f"{output}\n\n[TRUNCATED - results exceed {max_lines} lines. Narrow your search with a more specific pattern or file_pattern]"
-            return output
+                return self._log_tool_response(sandbox_id, f"{output}\n\n[TRUNCATED - results exceed {max_lines} lines. Narrow your search with a more specific pattern or file_pattern]")
+            return self._log_tool_response(sandbox_id, output)
         except Exception as e:
             error_str = str(e)
             if "502" in error_str:
                 metrics.exec_502_errors += 1
             elif "409" in error_str:
                 metrics.exec_409_errors += 1
-            return f"Error: {error_str[:100]}"
+            return self._log_tool_response(sandbox_id, f"Error: {error_str[:100]}")
 
     async def list_files(self, path: str, sandbox_id: str) -> str:
         """List files and directories at a path.
-        
+
         Args:
             path: Directory path to list contents of
         """
         import shlex
-        
+
         cmd = f"ls -la {shlex.quote(path)}"
         try:
             result = await self.client.execute_command(sandbox_id, cmd)
-            return result.stdout.strip() if result.stdout.strip() else "Empty directory."
+            output = result.stdout.strip() if result.stdout.strip() else "Empty directory."
+            return self._log_tool_response(sandbox_id, output)
         except Exception as e:
-            return f"Error: {str(e)[:100]}"
+            return self._log_tool_response(sandbox_id, f"Error: {str(e)[:100]}")
 
     async def read_file(self, file_path: str, sandbox_id: str, start_line: int = 1, num_lines: int = 100) -> str:
         """Read lines from a file.
-        
+
         Args:
             file_path: Path to the file
             start_line: Line number to start from (1-indexed)
             num_lines: Number of lines to read (max 500)
         """
         import shlex
-        
+
         num_lines = min(num_lines, 50)
         end_line = start_line + num_lines - 1
         # Get one extra line to detect if there's more
@@ -252,16 +259,16 @@ class SweGrepEnv(vf.SandboxEnv):
             result = await self.client.execute_command(sandbox_id, cmd)
             output = result.stdout if result.stdout else ""
             if not output.strip():
-                return f"No content at lines {start_line}-{end_line} (file may be shorter or not exist)"
-            
+                return self._log_tool_response(sandbox_id, f"No content at lines {start_line}-{end_line} (file may be shorter or not exist)")
+
             lines = output.split('\n')
             has_more = len(lines) > num_lines
             if has_more:
                 output = '\n'.join(lines[:num_lines])
-                return f"Lines {start_line}-{end_line} of {file_path}:\n{output}\n\n[MORE CONTENT BELOW - use start_line={end_line + 1} to continue]"
-            return f"Lines {start_line}-{end_line} of {file_path}:\n{output}"
+                return self._log_tool_response(sandbox_id, f"Lines {start_line}-{end_line} of {file_path}:\n{output}\n\n[MORE CONTENT BELOW - use start_line={end_line + 1} to continue]")
+            return self._log_tool_response(sandbox_id, f"Lines {start_line}-{end_line} of {file_path}:\n{output}")
         except Exception as e:
-            return f"Error: {str(e)[:100]}"
+            return self._log_tool_response(sandbox_id, f"Error: {str(e)[:100]}")
 
 
 
