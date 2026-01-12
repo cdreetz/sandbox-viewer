@@ -10,7 +10,7 @@ interface RolloutListProps {
   loading?: boolean
 }
 
-function formatDuration(startedAt: string, finishedAt: string): string {
+function formatDuration(startedAt: string, finishedAt: string | null): string {
   if (!startedAt || !finishedAt) return '-'
   const start = new Date(startedAt).getTime()
   const end = new Date(finishedAt).getTime()

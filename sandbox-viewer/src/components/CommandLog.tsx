@@ -36,6 +36,9 @@ function CommandItem({ command, index }: CommandItemProps) {
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <span className={styles.index}>{index + 1}</span>
+        {command.turn !== null && (
+          <span className={styles.turn}>T{command.turn}</span>
+        )}
         <span className={styles.time}>{formatTime(command.timestamp)}</span>
         <span className={styles.commandText}>{command.command}</span>
         <span className={styles.duration}>{command.duration_ms}ms</span>

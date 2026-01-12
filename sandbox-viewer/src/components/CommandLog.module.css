@@ -80,6 +80,16 @@
   flex-shrink: 0;
 }
 
+.turn {
+  padding: 2px 6px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
 .time {
   font-size: 11px;
   color: var(--text-muted);

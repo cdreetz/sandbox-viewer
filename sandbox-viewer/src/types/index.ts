@@ -9,12 +9,14 @@ export interface RolloutMetadata {
   rollout_id: string;
   sandbox_id: string;
   started_at: string;
-  finished_at: string;
+  finished_at: string | null;
   commands_count: number;
 }
 
 export interface Command {
   timestamp: string;
+  turn: number | null;
+  tool_call_id: string | null;
   command: string;
   stdout: string;
   stderr: string;

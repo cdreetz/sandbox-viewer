@@ -100,6 +100,9 @@ export default function Home() {
           fetch(`/api/runs/${selectedRunId}/rollouts/${selectedRolloutId}/filesystem`),
         ])
 
+        if (!commandsRes.ok) {
+          throw new Error(`Commands API failed: ${commandsRes.status}`)
+        }
         const commandsData = await commandsRes.json()
         setCommands(commandsData)
 
