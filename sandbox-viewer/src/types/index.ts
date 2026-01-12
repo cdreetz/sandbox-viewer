@@ -11,7 +11,7 @@ export interface RolloutMetadata {
   started_at: string;
   finished_at: string | null;
   commands_count: number;
-  question: string | null;
+  question: unknown;
   answer: string | null;
   tools: string[] | null;
   reward: number | null;

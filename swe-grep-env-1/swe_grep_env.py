@@ -147,7 +147,7 @@ class SweGrepEnv(vf.SandboxEnv):
                     run_id=RUN_ID,
                     rollout_id=state["trajectory_id"],
                     sandbox_id=sandbox_id,
-                    question=state.get("question"),
+                    question=state.get("prompt"),
                     answer=state.get("answer"),
                     tools=tool_names
                 )
@@ -173,6 +173,15 @@ class SweGrepEnv(vf.SandboxEnv):
         if isinstance(self.client, DebugSandboxClient):
             self.client.log_tool_response(sandbox_id, response)
         return response
+
+    @vf.cleanup
+    async def capture_reward(self, state):
+        """Capture the reward before sandbox cleanup."""
+        if isinstance(self.client, DebugSandboxClient):
+            sandbox_id = state.get("sandbox_id")
+            reward = state.get("reward")
+            if sandbox_id and reward is not None:
+                self.client.set_reward(sandbox_id, reward)
 
     async def grep_tool(
         self,

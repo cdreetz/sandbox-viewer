@@ -7,6 +7,28 @@ interface RolloutInfoProps {
   rollout: RolloutMetadata | null
 }
 
+interface Message {
+  role: string
+  content: string
+}
+
+// Parse prompt into array of messages
+function parsePrompt(prompt: unknown): Message[] | null {
+  if (!prompt) return null
+  if (typeof prompt === 'string') return [{ role: 'user', content: prompt }]
+  if (Array.isArray(prompt)) {
+    return prompt.map(msg => {
+      if (typeof msg === 'string') return { role: 'user', content: msg }
+      return { role: msg?.role || 'unknown', content: msg?.content || '' }
+    }).filter(m => m.content)
+  }
+  if (typeof prompt === 'object' && 'content' in prompt) {
+    const msg = prompt as { content: string; role?: string }
+    return [{ role: msg.role || 'user', content: msg.content }]
+  }
+  return null
+}
+
 export default function RolloutInfo({ rollout }: RolloutInfoProps) {
   if (!rollout) {
     return (
@@ -22,12 +44,23 @@ export default function RolloutInfo({ rollout }: RolloutInfoProps) {
         <h3 className={styles.title}>Rollout Info</h3>
       </div>
       <div className={styles.content}>
-        <div className={styles.section}>
-          <div className={styles.label}>Prompt</div>
-          <div className={styles.value}>
-            {rollout.question || <span className={styles.empty}>Not available</span>}
-          </div>
-        </div>
+        {(() => {
+          const messages = parsePrompt(rollout.question)
+          if (!messages) return (
+            <div className={styles.section}>
+              <div className={styles.label}>Prompt</div>
+              <div className={styles.value}>
+                <span className={styles.empty}>Not available</span>
+              </div>
+            </div>
+          )
+          return messages.map((msg, i) => (
+            <div key={i} className={styles.section}>
+              <div className={styles.label}>{msg.role}</div>
+              <div className={styles.value}>{msg.content}</div>
+            </div>
+          ))
+        })()}
 
         <div className={styles.section}>
           <div className={styles.label}>Ground Truth</div>
