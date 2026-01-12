@@ -355,6 +355,8 @@ SYSTEM_PROMPT = """You are a helpful assistant that can answer questions and hel
 You have access to a set of tools to help you answer questions and help with tasks.
 You can make multiple tool calls in parallel per turn (up to 8), and are encouraged to do so
 in order to answer the question as quickly as possible.
+The most important thing is that you make parallel tool calls.  If you dont make more than 1 tool call per turn than you fail the entire task.
+PLEASE FOR THE LOVE OF GOD MAKE 2 CALLS AT A TIME YOU ARE ALLOWED TO DO THAT SO PLEASE DO IT.
 """
 
 def load_environment(

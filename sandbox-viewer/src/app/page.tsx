@@ -26,6 +26,7 @@ export default function Home() {
 
   // Sidebar view state
   const [sidebarView, setSidebarView] = useState<SidebarView>('runs')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // Loading states
   const [loadingRuns, setLoadingRuns] = useState(true)
@@ -163,39 +164,58 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <div className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
+      <div className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
+        {sidebarCollapsed ? (
           <button
-            className={`${styles.sidebarTab} ${sidebarView === 'runs' ? styles.active : ''}`}
-            onClick={() => setSidebarView('runs')}
+            className={styles.expandButton}
+            onClick={() => setSidebarCollapsed(false)}
+            title="Expand sidebar"
           >
-            Runs
+            &rsaquo;
           </button>
-          <span className={styles.sidebarDivider}>/</span>
-          <button
-            className={`${styles.sidebarTab} ${sidebarView === 'rollouts' ? styles.active : ''}`}
-            onClick={() => setSidebarView('rollouts')}
-            disabled={!selectedRunId}
-          >
-            Rollouts
-          </button>
-        </div>
-        <div className={styles.sidebarContent}>
-          {sidebarView === 'runs' ? (
-            <RunList
-              runs={runs}
-              selectedRunId={selectedRunId}
-              onSelectRun={handleSelectRun}
-            />
-          ) : (
-            <RolloutList
-              rollouts={rollouts}
-              selectedRolloutId={selectedRolloutId}
-              onSelectRollout={handleSelectRollout}
-              loading={loadingRollouts}
-            />
-          )}
-        </div>
+        ) : (
+          <>
+            <div className={styles.sidebarHeader}>
+              <button
+                className={`${styles.sidebarTab} ${sidebarView === 'runs' ? styles.active : ''}`}
+                onClick={() => setSidebarView('runs')}
+              >
+                Runs
+              </button>
+              <span className={styles.sidebarDivider}>/</span>
+              <button
+                className={`${styles.sidebarTab} ${sidebarView === 'rollouts' ? styles.active : ''}`}
+                onClick={() => setSidebarView('rollouts')}
+                disabled={!selectedRunId}
+              >
+                Rollouts
+              </button>
+              <button
+                className={styles.collapseButton}
+                onClick={() => setSidebarCollapsed(true)}
+                title="Collapse sidebar"
+              >
+                &lsaquo;
+              </button>
+            </div>
+            <div className={styles.sidebarContent}>
+              {sidebarView === 'runs' ? (
+                <RunList
+                  runs={runs}
+                  selectedRunId={selectedRunId}
+                  onSelectRun={handleSelectRun}
+                />
+              ) : (
+                <RolloutList
+                  rollouts={rollouts}
+                  selectedRolloutId={selectedRolloutId}
+                  onSelectRollout={handleSelectRollout}
+                  loading={loadingRollouts}
+                />
+              )}
+            </div>
+          </>
+        )}
       </div>
       <div className={styles.content}>
         {selectedRolloutId ? (
