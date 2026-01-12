@@ -114,7 +114,6 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .filesystemSection {
@@ -140,8 +139,19 @@
   font-size: 13px;
 }
 
+.resizeHandle {
+  height: 6px;
+  background: var(--border-color);
+  cursor: ns-resize;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.resizeHandle:hover {
+  background: var(--text-muted);
+}
+
 .commandsSection {
-  height: 280px;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -167,16 +177,60 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: width 0.15s ease;
 }
 
-.themeToggle {
+.rightSidebarCollapsed {
+  width: 32px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.rightSidebarHeader {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--border-color);
 }
 
+.collapseButtonRight {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.collapseButtonRight:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.expandButtonRight {
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.expandButtonRight:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
 .themeButton {
+  margin-left: auto;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: 4px;

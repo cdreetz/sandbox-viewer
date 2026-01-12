@@ -28,12 +28,35 @@ export default function Home() {
   // Sidebar view state
   const [sidebarView, setSidebarView] = useState<SidebarView>('runs')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
+  const [commandsHeight, setCommandsHeight] = useState(280)
 
   // Apply theme to document
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
+
+  // Handle resize drag for commands section
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    const startY = e.clientY
+    const startHeight = commandsHeight
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const delta = startY - moveEvent.clientY
+      const newHeight = Math.min(Math.max(startHeight + delta, 100), 600)
+      setCommandsHeight(newHeight)
+    }
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }, [commandsHeight])
 
   // Loading states
   const [loadingRuns, setLoadingRuns] = useState(true)
@@ -251,7 +274,11 @@ export default function Home() {
                 )}
               </div>
             </div>
-            <div className={styles.commandsSection}>
+            <div
+              className={styles.resizeHandle}
+              onMouseDown={handleResizeMouseDown}
+            />
+            <div className={styles.commandsSection} style={{ height: commandsHeight }}>
               <CommandLog commands={commands} loading={loadingCommands} />
             </div>
           </>
@@ -265,17 +292,36 @@ export default function Home() {
           </div>
         )}
       </div>
-      <div className={styles.rightSidebar}>
-        <div className={styles.themeToggle}>
+      <div className={`${styles.rightSidebar} ${rightSidebarCollapsed ? styles.rightSidebarCollapsed : ''}`}>
+        {rightSidebarCollapsed ? (
           <button
-            className={styles.themeButton}
-            onClick={() => setDarkMode(!darkMode)}
-            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            className={styles.expandButtonRight}
+            onClick={() => setRightSidebarCollapsed(false)}
+            title="Expand sidebar"
           >
-            {darkMode ? '☀' : '☾'}
+            &lsaquo;
           </button>
-        </div>
-        <RolloutInfo rollout={rollouts.find(r => r.rollout_id === selectedRolloutId) || null} />
+        ) : (
+          <>
+            <div className={styles.rightSidebarHeader}>
+              <button
+                className={styles.collapseButtonRight}
+                onClick={() => setRightSidebarCollapsed(true)}
+                title="Collapse sidebar"
+              >
+                &rsaquo;
+              </button>
+              <button
+                className={styles.themeButton}
+                onClick={() => setDarkMode(!darkMode)}
+                title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {darkMode ? '☀' : '☾'}
+              </button>
+            </div>
+            <RolloutInfo rollout={rollouts.find(r => r.rollout_id === selectedRolloutId) || null} />
+          </>
+        )}
       </div>
     </main>
   )
