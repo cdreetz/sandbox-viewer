@@ -11,6 +11,10 @@ export interface RolloutMetadata {
   started_at: string;
   finished_at: string | null;
   commands_count: number;
+  question: string | null;
+  answer: string | null;
+  tools: string[] | null;
+  reward: number | null;
 }
 
 export interface Command {

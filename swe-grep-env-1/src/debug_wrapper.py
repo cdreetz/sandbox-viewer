@@ -19,7 +19,15 @@ class DebugSandboxClient:
         # Per-sandbox state to handle parallel rollouts
         self._sandbox_state = {}
 
-    def set_context(self, run_id: str, rollout_id: str, sandbox_id: str):
+    def set_context(
+        self,
+        run_id: str,
+        rollout_id: str,
+        sandbox_id: str,
+        question: str = None,
+        answer: str = None,
+        tools: list = None
+    ):
         started_at = datetime.now().isoformat()
 
         # Structure: debug_output/runs/{run_id}/rollouts/{rollout_id}/
@@ -37,6 +45,9 @@ class DebugSandboxClient:
             "rollout_dir": rollout_dir,
             "log_file": rollout_dir / "commands.jsonl",
             "tar_file": rollout_dir / "filesystem.tar.gz",
+            "question": question,
+            "answer": answer,
+            "tools": tools,
         }
 
         # Write rollout metadata immediately (will be updated in delete with finished_at)
@@ -46,7 +57,11 @@ class DebugSandboxClient:
             "sandbox_id": sandbox_id,
             "started_at": started_at,
             "finished_at": None,
-            "commands_count": 0
+            "commands_count": 0,
+            "question": question,
+            "answer": answer,
+            "tools": tools,
+            "reward": None
         }
         metadata_file = rollout_dir / "metadata.json"
         metadata_file.write_text(json.dumps(rollout_metadata, indent=2))
@@ -106,6 +121,12 @@ class DebugSandboxClient:
         with open(state["log_file"], "a") as f:
             f.write(json.dumps(entry) + "\n")
 
+    def set_reward(self, sandbox_id: str, reward: float):
+        """Set the final reward for the rollout."""
+        state = self._sandbox_state.get(sandbox_id)
+        if state:
+            state["reward"] = reward
+
     def log_tool_response(self, sandbox_id: str, response: str):
         """Log the tool's return value (what gets sent back to the LLM)."""
         state = self._sandbox_state.get(sandbox_id)
@@ -145,7 +166,11 @@ class DebugSandboxClient:
                 "sandbox_id": state["sandbox_id"],
                 "started_at": state["started_at"],
                 "finished_at": datetime.now().isoformat(),
-                "commands_count": state["command_count"]
+                "commands_count": state["command_count"],
+                "question": state.get("question"),
+                "answer": state.get("answer"),
+                "tools": state.get("tools"),
+                "reward": state.get("reward")
             }
             metadata_file = state["rollout_dir"] / "metadata.json"
             metadata_file.write_text(json.dumps(rollout_metadata, indent=2))

@@ -6,6 +6,7 @@ import RolloutList from '@/components/RolloutList'
 import FilesystemBrowser from '@/components/FilesystemBrowser'
 import CommandLog from '@/components/CommandLog'
 import FileViewer from '@/components/FileViewer'
+import RolloutInfo from '@/components/RolloutInfo'
 import { RunMetadata, RolloutMetadata, Command, FileNode } from '@/types'
 import styles from './page.module.css'
 
@@ -257,6 +258,9 @@ export default function Home() {
             </div>
           </div>
         )}
+      </div>
+      <div className={styles.rightSidebar}>
+        <RolloutInfo rollout={rollouts.find(r => r.rollout_id === selectedRolloutId) || null} />
       </div>
     </main>
   )

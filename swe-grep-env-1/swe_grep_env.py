@@ -142,10 +142,14 @@ class SweGrepEnv(vf.SandboxEnv):
             metrics.maybe_log()
             # Set debug context after setup succeeds with final sandbox_id
             if isinstance(self.client, DebugSandboxClient):
+                tool_names = [t.__name__ for t in self.tools]
                 self.client.set_context(
                     run_id=RUN_ID,
                     rollout_id=state["trajectory_id"],
-                    sandbox_id=sandbox_id
+                    sandbox_id=sandbox_id,
+                    question=state.get("question"),
+                    answer=state.get("answer"),
+                    tools=tool_names
                 )
             return state
         
